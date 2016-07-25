@@ -3,7 +3,7 @@ set -e
 
 echo 'export PATH="/opt/puppetlabs/bin:$PATH"' > /etc/profile.d/puppet4.sh
 
-REPO_NAME="puppetlabs-release-"$COLLECTION"-trusty"
+REPO_NAME="puppetlabs-release-"$COLLECTION"-$OS_NAME"
 
 echo "installing colection repo"
 wget http://apt.puppetlabs.com/$REPO_NAME.deb
