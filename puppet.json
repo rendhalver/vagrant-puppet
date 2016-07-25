@@ -1,0 +1,184 @@
+{
+
+  "variables": {
+    "name": "puppet",
+
+    "template_os_vbox": "Ubuntu_64",
+    "template_os_vmware": "Ubuntu-64",
+    "iso_url": "",
+    "iso_checksum": "",
+    "iso_checksum_type": "sha256",
+
+    "memory_size": "3096",
+    "cpu_count": "1",
+
+    "puppet_collection": "",
+    "agent_version": ""
+  },
+
+  "builders": [
+    {
+      "name": "puppet-vbox",
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz auto <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-setup/layoutcode=us <wait>",
+        "console-setup/modelcode=pc105 <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "debian-installer=en_US <wait>",
+        "fb=false <wait>",
+        "initrd=/install/initrd.gz <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/layout=USA <wait>",
+        "keyboard-configuration/variant=USA <wait>",
+        "locale=en_US <wait>",
+        "netcfg/get_domain=vm <wait>",
+        "netcfg/get_hostname=localhost <wait>",
+        "noapic <wait>" ,
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "-- <wait>",
+        "<enter>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": 20480,
+      "guest_os_type": "{{user `template_os_vbox`}}",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "http_directory": "files",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      "virtualbox_version_file": ".vbox_version",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "{{user `memory_size`}}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "{{user `cpu_count`}}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--ioapic",
+          "off"
+        ]
+      ]
+    },
+    {
+      "name": "puppet-vmware",
+      "type": "vmware-iso",
+      "boot_command": [
+        "<esc><esc><enter><wait>",
+        "/install/vmlinuz auto <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-setup/layoutcode=us <wait>",
+        "console-setup/modelcode=pc105 <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "debian-installer=en_US <wait>",
+        "fb=false <wait>",
+        "initrd=/install/initrd.gz <wait>",
+        "kbd-chooser/method=us <wait>",
+        "keyboard-configuration/layout=USA <wait>",
+        "keyboard-configuration/variant=USA <wait>",
+        "locale=en_US <wait>",
+        "netcfg/get_domain=vm <wait>",
+        "netcfg/get_hostname=localhost <wait>",
+        "noapic <wait>" ,
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "-- <wait>",
+        "<enter>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": 20480,
+      "guest_os_type": "{{user `template_os_vmware`}}",
+      "tools_upload_flavor": "linux",
+      "tools_upload_path": "/home/vagrant/linux.iso",
+      "http_directory": "files",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+      "vmx_data": {
+          "memsize": "{{user `memory_size`}}",
+          "numvcpus": "{{user `cpu_count`}}",
+          "cpuid.coresPerSocket": "1"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "environment_vars": [
+        "HOME_DIR=/home/vagrant",
+        "COLLECTION={{user `puppet_collection`}}",
+        "SERVER_VERSION={{user `server_version`}}",
+        "PUPPETDB_VERSION={{user `puppetdb_version`}}",
+        "POSTGRES_VERSION={{user `postgres_version`}}",
+        "AGENT_VERSION={{user `agent_version`}}",
+        "R10K_VERSION={{user `r10k_version`}}"
+      ],
+      "scripts": [
+        "scripts/update.sh",
+        "scripts/sshd.sh",
+        "scripts/networking.sh",
+        "scripts/sudoers.sh",
+        "scripts/vagrant.sh",
+        "scripts/vmtools.sh",
+        "scripts/puppet_repo.sh",
+        "scripts/puppet.sh",
+        "scripts/cleanup.sh",
+        "scripts/minimize.sh"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "output": "build/{{.Provider}}/puppet.box",
+        "keep_input_artifact": false
+      },
+      {
+        "type": "atlas",
+        "only": ["puppet-vbox"],
+        "token": "{{user `atlas_token`}}",
+        "artifact": "rendhalver/vagrant-puppet",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "virtualbox",
+          "created_at": "{{timestamp}}"
+        }
+      },
+      {
+        "type": "atlas",
+        "only": ["puppet-vmware"],
+        "token": "{{user `atlas_token`}}",
+        "artifact": "rendhalver/vagrant-puppet",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "vmware_fusion",
+          "created_at": "{{timestamp}}"
+        }
+      }
+    ]
+  ]
+
+}
