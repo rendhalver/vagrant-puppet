@@ -176,7 +176,7 @@
         "artifact": "rendhalver/vagrant-puppet",
         "artifact_type": "vagrant.box",
         "metadata": {
-          "provider": "vmware_fusion",
+          "provider": "vmware_desktop",
           "created_at": "{{timestamp}}"
         }
       }
