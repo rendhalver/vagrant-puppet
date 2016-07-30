@@ -133,6 +133,7 @@
       "environment_vars": [
         "HOME_DIR=/home/vagrant",
         "COLLECTION={{user `puppet_collection`}}",
+        "OS_NAME={{user `os_name`}}",
         "SERVER_VERSION={{user `server_version`}}",
         "PUPPETDB_VERSION={{user `puppetdb_version`}}",
         "POSTGRES_VERSION={{user `postgres_version`}}",
