@@ -166,7 +166,7 @@
         "type": "atlas",
         "only": ["puppetserver-vbox"],
         "token": "{{user `atlas_token`}}",
-        "artifact": "powerhome/power-puppetmaster",
+        "artifact": "rendhalver/vagrant-puppetserver",
         "artifact_type": "vagrant.box",
         "metadata": {
           "provider": "virtualbox",
@@ -177,7 +177,7 @@
         "type": "atlas",
         "only": ["puppetserver-vmware"],
         "token": "{{user `atlas_token`}}",
-        "artifact": "powerhome/power-puppetmaster",
+        "artifact": "rendhalver/vagrant-puppetserver",
         "artifact_type": "vagrant.box",
         "metadata": {
           "provider": "vmware_fusion",
