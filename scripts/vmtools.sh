@@ -18,8 +18,8 @@ virtualbox-iso|virtualbox-ovf)
     ;;
 
 vmware-iso|vmware-vmx)
-    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install open-vm-tools
-    mkdir /mnt/hgfs
+    apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install open-vm-tools;
+    mkdir /mnt/hgfs;
     ;;
 
 parallels-iso|parallels-pvm)
