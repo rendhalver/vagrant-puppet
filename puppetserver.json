@@ -128,6 +128,7 @@
   "provisioners": [
     {
       "type": "shell",
+      "skip_clean": "true",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
       "environment_vars": [
         "HOME_DIR=/home/vagrant",
